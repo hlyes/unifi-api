@@ -7,7 +7,16 @@ try:
     _ssl.PROTOCOL_SSLv23 = _ssl.PROTOCOL_SSLv3
 except:
     pass
+import ssl
+from functools import wraps
+def sslwrap(func):
+    @wraps(func)
+    def bar(*args, **kw):
+        kw['ssl_version'] = ssl.PROTOCOL_TLSv1
+        return func(*args, **kw)
+    return bar
 
+ssl.wrap_socket = sslwrap(ssl.wrap_socket)
 
 import cookielib
 import json
