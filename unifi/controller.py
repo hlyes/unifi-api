@@ -1,12 +1,4 @@
 
-try:
-    # Ugly hack to force SSLv3 and avoid
-    # urllib2.URLError: <urlopen error [Errno 1] _ssl.c:504:
-    # error:14077438:SSL routines:SSL23_GET_SERVER_HELLO:tlsv1 alert internal error>
-    import _ssl
-    _ssl.PROTOCOL_SSLv23 = _ssl.PROTOCOL_SSLv3
-except:
-    pass
 import ssl
 from functools import wraps
 def sslwrap(func):
@@ -45,7 +37,7 @@ class Controller:
     >>> from unifi.controller import Controller
     >>> c = Controller('192.168.1.99', 'admin', 'p4ssw0rd')
     >>> for ap in c.get_aps():
-    ...     print 'AP named %s with MAC %s' % (ap['name'], ap['mac'])
+    ...      print 'AP named %s with MAC %s' % (ap['name'], ap['mac'])
     ...
     AP named Study with MAC dc:9f:db:1a:59:07
     AP named Living Room with MAC dc:9f:db:1a:59:08
@@ -57,12 +49,12 @@ class Controller:
         """Create a Controller object.
 
         Arguments:
-            host     -- the address of the controller host; IP or name
-            username -- the username to log in with
-            password -- the password to log in with
-            port     -- the port of the controller host
-            version  -- the base version of the controller API [v2|v3|v4]
-            site_id  -- the site ID to connect to (UniFi >= 3.x)
+                host     -- the address of the controller host; IP or name
+                username -- the username to log in with
+                password -- the password to log in with
+                port     -- the port of the controller host
+                version  -- the base version of the controller API [v2|v3|v4]
+                site_id  -- the site ID to connect to (UniFi >= 3.x)
 
         """
 
@@ -122,13 +114,13 @@ class Controller:
 
     def _login(self, version):
         log.debug('login() as %s', self.username)
-        
+
         if(version == 'v4'):
             params = "{'username':'" + self.username + "','password':'" + self.password + "'}"
             self.opener.open(self.url + 'api/login', params).read()
         else:
             params = urllib.urlencode({'login': 'login',
-                                   'username': self.username, 'password': self.password})
+                                                       'username': self.username, 'password': self.password})
             self.opener.open(self.url + 'login', params).read()
 
     def _logout(self):
@@ -157,7 +149,7 @@ class Controller:
         """Return statistical data last 24h from time"""
 
         js = json.dumps(
-            {'attrs': ["bytes", "num_sta", "time"], 'start': int(endtime - 86400) * 1000, 'end': int(endtime - 3600) * 1000})
+                {'attrs': ["bytes", "num_sta", "time"], 'start': int(endtime - 86400) * 1000, 'end': int(endtime - 3600) * 1000})
         params = urllib.urlencode({'json': js})
         return self._read(self.api_url + 'stat/report/hourly.system', params)
 
@@ -207,7 +199,7 @@ class Controller:
         """Add a client to the block list.
 
         Arguments:
-            mac -- the MAC address of the client to block.
+                mac -- the MAC address of the client to block.
 
         """
 
@@ -217,7 +209,7 @@ class Controller:
         """Remove a client from the block list.
 
         Arguments:
-            mac -- the MAC address of the client to unblock.
+                mac -- the MAC address of the client to unblock.
 
         """
 
@@ -230,7 +222,7 @@ class Controller:
         connection is of bad quality to force a rescan.
 
         Arguments:
-            mac -- the MAC address of the client to disconnect.
+                mac -- the MAC address of the client to disconnect.
 
         """
 
@@ -240,7 +232,7 @@ class Controller:
         """Restart an access point (by MAC).
 
         Arguments:
-            mac -- the MAC address of the AP to restart.
+                mac -- the MAC address of the AP to restart.
 
         """
 
@@ -250,7 +242,7 @@ class Controller:
         """Restart an access point (by name).
 
         Arguments:
-            name -- the name address of the AP to restart.
+                name -- the name address of the AP to restart.
 
         """
 
@@ -271,7 +263,7 @@ class Controller:
         """Ask controller to create a backup archive file, response contains the path to the backup file.
 
         Warning: This process puts significant load on the controller may
-                 render it partially unresponsive for other requests.
+                         render it partially unresponsive for other requests.
         """
 
         js = json.dumps({'cmd': 'backup'})
@@ -284,7 +276,7 @@ class Controller:
         """Get a backup archive from a controller.
 
         Arguments:
-            target_file -- Filename or full path to download the backup archive to, should have .unf extension for restore.
+                target_file -- Filename or full path to download the backup archive to, should have .unf extension for restore.
 
         """
         download_path = self.create_backup()
@@ -301,12 +293,12 @@ class Controller:
         Authorize a guest based on his MAC address.
 
         Arguments:
-            guest_mac     -- the guest MAC address : aa:bb:cc:dd:ee:ff
-            minutes       -- duration of the authorization in minutes
-            up_bandwith   -- up speed allowed in kbps (optional)
-            down_bandwith -- down speed allowed in kbps (optional)
-            byte_quota    -- quantity of bytes allowed in MB (optional)
-            ap_mac        -- access point MAC address (UniFi >= 3.x) (optional)
+                guest_mac        -- the guest MAC address : aa:bb:cc:dd:ee:ff
+                minutes    -- duration of the authorization in minutes
+                up_bandwith   -- up speed allowed in kbps (optional)
+                down_bandwith -- down speed allowed in kbps (optional)
+                byte_quota      -- quantity of bytes allowed in MB (optional)
+                ap_mac          -- access point MAC address (UniFi >= 3.x) (optional)
         """
         cmd = 'authorize-guest'
         js = {'mac': guest_mac, 'minutes': minutes}
@@ -327,9 +319,26 @@ class Controller:
         Unauthorize a guest based on his MAC address.
 
         Arguments:
-            guest_mac -- the guest MAC address : aa:bb:cc:dd:ee:ff
+                guest_mac -- the guest MAC address : aa:bb:cc:dd:ee:ff
         """
         cmd = 'unauthorize-guest'
         js = {'mac': guest_mac}
 
         return self._run_command(cmd, params=js)
+
+    def set_wpa_password(self, password):
+        wlan_confs = self.get_wlan_conf()
+        
+        for wlan in wlan_confs:
+        	if 'FREE WIFI' in wlan['name']:
+        		wlan_conf = wlan
+        
+        if wlan_conf:
+        	params = dict()
+        	
+        	params['security'] = 'wpapsk'
+        	params['wpa_enc'] = 'ccmp'
+        	params['wpa_mode'] = 'auto'
+        	params['x_passphrase'] = password
+        
+        	return self._read(self.api_url + 'upd/wlanconf/'+ wlan_conf['_id'], json.dumps(params))
