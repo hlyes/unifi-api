@@ -4,7 +4,9 @@ from functools import wraps
 def sslwrap(func):
     @wraps(func)
     def bar(*args, **kw):
-        kw['ssl_version'] = ssl.PROTOCOL_TLSv1
+        # using PROTOCOL_TLSv1 doesn't work with SSLv3 on Linux Mint Distribution & UniFi v3
+        # Corrected using ssl.PROTOCOL_SSL_v3
+        kw['ssl_version'] = ssl.PROTOCOL_SSLv3
         return func(*args, **kw)
     return bar
 
