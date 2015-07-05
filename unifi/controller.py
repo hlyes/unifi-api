@@ -6,7 +6,7 @@ def sslwrap(func):
     def bar(*args, **kw):
         # using PROTOCOL_TLSv1 doesn't work with SSLv3 on Linux Mint Distribution & UniFi v3
         # Corrected using ssl.PROTOCOL_SSL_v3
-        kw['ssl_version'] = ssl.PROTOCOL_SSLv3
+        kw['ssl_version'] = ssl.PROTOCOL_TLS_v1
         return func(*args, **kw)
     return bar
 
